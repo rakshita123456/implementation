@@ -3,386 +3,103 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Code Implementation</title>
+    <title>Farm Data Management and Marketplace</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-
     <div class="container">
-        <section id="farmDataManagement">
-            <h1>Farm Data Management: Using Hash Tables</h1>
-            <p>#include <iostream>
-#include <string>
-using namespace std;
+        <header>
+            <h1>Farm Data Management and Marketplace</h1>
+        </header>
 
-// Structure to represent farm data
-struct Farm {
-    string farmName;
-    string soilQuality;
-    string cropType;
-    double yieldHistory;
+        <section class="feature-section">
+            <h2>1. Farm Data Management: Using Hash Tables</h2>
+            <h2>Here is the c++ file</h2>
+            <span style="font-weight: bold; color: #2c3e50;"></span>
+                <a href="transport1.cpp" target="_blank" class="button">CLICK</a>
+            <p><strong>Example Output:</strong></p>
+            <p><strong>Farm added successfully:</strong> Farm1</p>
+            <p><strong>Farm added successfully:</strong> Farm2</p>
+            <p><strong>Farm added successfully:</strong> Farm3</p>
 
-    Farm(string name = "", string soil = "", string crop = "", double yield = 0.0)
-        : farmName(name), soilQuality(soil), cropType(crop), yieldHistory(yield) {}
-};
+            <p><strong>Farm Data:</strong></p>
+            <pre>
+Slot 0: Empty
+Slot 1: Name: Farm1, Soil Quality: Loamy, Crop Type: Wheat, Yield History: 30.5 tons
+Slot 2: Name: Farm2, Soil Quality: Clay, Crop Type: Rice, Yield History: 45.2 tons
+Slot 3: Name: Farm3, Soil Quality: Sandy, Crop Type: Corn, Yield History: 25.8 tons
+Slot 4: Empty
+Slot 5: Empty
+Slot 6: Empty
+Slot 7: Empty
+Slot 8: Empty
+Slot 9: Empty
+            </pre>
 
-// HashTable Class
-class HashTable {
-private:
-    static const int TABLE_SIZE = 10; // Size of the hash table
-    Farm table[TABLE_SIZE];          // Array-based hash table
-    bool isOccupied[TABLE_SIZE];     // To track if a slot is occupied
-
-    // Hash function to compute the index
-    int hashFunction(const string& key) {
-        int hash = 0;
-        for (char c : key) {
-            hash += c;
-        }
-        return hash % TABLE_SIZE;
-    }
-
-public:
-    // Constructor to initialize the hash table
-    HashTable() {
-        for (int i = 0; i < TABLE_SIZE; ++i) {
-            isOccupied[i] = false;
-        }
-    }
-
-    // Insert farm data
-    void insertFarm(const string& name, const string& soil, const string& crop, double yield) {
-        int index = hashFunction(name);
-
-        // Linear probing to handle collisions
-        int originalIndex = index;
-        while (isOccupied[index]) {
-            if (table[index].farmName == name) {
-                cout << "Error: Farm with the name '" << name << "' already exists.\n";
-                return;
-            }
-            index = (index + 1) % TABLE_SIZE;
-            if (index == originalIndex) {
-                cout << "Error: Hash table is full.\n";
-                return;
-            }
-        }
-
-        table[index] = Farm(name, soil, crop, yield);
-        isOccupied[index] = true;
-        cout << "Farm added successfully: " << name << "\n";
-    }
-
-    // Search for farm data by name
-    void searchFarm(const string& name) {
-        int index = hashFunction(name);
-        int originalIndex = index;
-
-        // Linear probing to find the farm
-        while (isOccupied[index]) {
-            if (table[index].farmName == name) {
-                cout << "Farm Found:\n";
-                cout << "  Name: " << table[index].farmName
-                     << ", Soil Quality: " << table[index].soilQuality
-                     << ", Crop Type: " << table[index].cropType
-                     << ", Yield History: " << table[index].yieldHistory << " tons\n";
-                return;
-            }
-            index = (index + 1) % TABLE_SIZE;
-            if (index == originalIndex) break;
-        }
-
-        cout << "Error: Farm with the name '" << name << "' not found.\n";
-    }
-
-    // Delete farm data by name
-    void deleteFarm(const string& name) {
-        int index = hashFunction(name);
-        int originalIndex = index;
-
-        // Linear probing to find the farm
-        while (isOccupied[index]) {
-            if (table[index].farmName == name) {
-                isOccupied[index] = false;
-                cout << "Farm deleted successfully: " << name << "\n";
-                return;
-            }
-            index = (index + 1) % TABLE_SIZE;
-            if (index == originalIndex) break;
-        }
-
-        cout << "Error: Farm with the name '" << name << "' not found.\n";
-    }
-
-    // Display all farms in the hash table
-    void displayFarms() {
-        cout << "Farm Data:\n";
-        for (int i = 0; i < TABLE_SIZE; ++i) {
-            if (isOccupied[i]) {
-                cout << "  Slot " << i << ": "
-                     << "Name: " << table[i].farmName
-                     << ", Soil Quality: " << table[i].soilQuality
-                     << ", Crop Type: " << table[i].cropType
-                     << ", Yield History: " << table[i].yieldHistory << " tons\n";
-            } else {
-                cout << "  Slot " << i << ": Empty\n";
-            }
-        }
-    }
-};
-
-// Main Function
-int main() {
-    HashTable farmData;
-
-    // Adding farms
-    farmData.insertFarm("Farm1", "Loamy", "Wheat", 30.5);
-    farmData.insertFarm("Farm2", "Clay", "Rice", 45.2);
-    farmData.insertFarm("Farm3", "Sandy", "Corn", 25.8);
-
-    // Display farms
-    farmData.displayFarms();
-
-    // Search for a specific farm
-    cout << "\nSearching for 'Farm2':\n";
-    farmData.searchFarm("Farm2");
-
-    // Delete a farm
-    cout << "\nDeleting 'Farm1':\n";
-    farmData.deleteFarm("Farm1");
-
-    // Display farms after deletion
-    cout << "\nFarms after deletion:\n";
-    farmData.displayFarms();
-
-    return 0;
-}
-</p>
-      <p>Farm added successfully: Farm1
-Farm added successfully: Farm2
-Farm added successfully: Farm3
-
-Farm Data:
-  Slot 0: Empty
-  Slot 1: Name: Farm1, Soil Quality: Loamy, Crop Type: Wheat, Yield History: 30.5 tons
-  Slot 2: Name: Farm2, Soil Quality: Clay, Crop Type: Rice, Yield History: 45.2 tons
-  Slot 3: Name: Farm3, Soil Quality: Sandy, Crop Type: Corn, Yield History: 25.8 tons
-  Slot 4: Empty
-  Slot 5: Empty
-  Slot 6: Empty
-  Slot 7: Empty
-  Slot 8: Empty
-  Slot 9: Empty
-
-Searching for 'Farm2':
+            <p><strong>Searching for 'Farm2':</strong></p>
+            <pre>
 Farm Found:
-  Name: Farm2, Soil Quality: Clay, Crop Type: Rice, Yield History: 45.2 tons
+Name: Farm2, Soil Quality: Clay, Crop Type: Rice, Yield History: 45.2 tons
+            </pre>
 
-Deleting 'Farm1':
-Farm deleted successfully: Farm1
+            <p><strong>Deleting 'Farm1':</strong></p>
+            <p>Farm deleted successfully: Farm1</p>
 
-Farms after deletion:
-  Slot 0: Empty
-  Slot 1: Empty
-  Slot 2: Name: Farm2, Soil Quality: Clay, Crop Type: Rice, Yield History: 45.2 tons
-  Slot 3: Name: Farm3, Soil Quality: Sandy, Crop Type: Corn, Yield History: 25.8 tons
-  Slot 4: Empty
-  Slot 5: Empty
-  Slot 6: Empty
-  Slot 7: Empty
-  Slot 8: Empty
-  Slot 9: Empty
-</p>
+            <p><strong>Farms after deletion:</strong></p>
+            <pre>
+Slot 0: Empty
+Slot 1: Empty
+Slot 2: Name: Farm2, Soil Quality: Clay, Crop Type: Rice, Yield History: 45.2 tons
+Slot 3: Name: Farm3, Soil Quality: Sandy, Crop Type: Corn, Yield History: 25.8 tons
+Slot 4: Empty
+Slot 5: Empty
+Slot 6: Empty
+Slot 7: Empty
+Slot 8: Empty
+Slot 9: Empty
+            </pre>
         </section>
 
-        <section id="farmerMarketplace">
-            <h1>Farmer Marketplace: Using Arrays and Stacks</h1>
-            <p>#include <iostream>
-#include <string>
-using namespace std;
+        <section class="feature-section">
+            <h2>2. Farmer Marketplace: Using Arrays and Stacks</h2>
+            <h2>Here is the c++ file</h2>
+            <span style="font-weight: bold; color: #2c3e50;"></span>
+                <a href="transport2.cpp" target="_blank" class="button">CLICK</a>
+            <p><strong>Example Output:</strong></p>
+            <p><strong>Product added successfully:</strong> Wheat</p>
+            <p><strong>Product added successfully:</strong> Rice</p>
+            <p><strong>Product added successfully:</strong> Corn</p>
 
-// Constants
-const int MAX_PRODUCTS = 100; // Maximum number of products
-const int MAX_STACK = 50;     // Maximum stack size for operation history
+            <p><strong>Marketplace Products:</strong></p>
+            <pre>
+1. Name: Wheat, Quantity: 100, Price: $20.5
+2. Name: Rice, Quantity: 200, Price: $15
+3. Name: Corn, Quantity: 150, Price: $10
+            </pre>
 
-// Structure to represent a Product
-struct Product {
-    string name;
-    int quantity;
-    double price;
+            <p><strong>Product removed successfully:</strong> Rice</p>
 
-    // Constructor for easy initialization
-    Product(string n = "", int q = 0, double p = 0.0)
-        : name(n), quantity(q), price(p) {}
-};
+            <p><strong>Marketplace Products:</strong></p>
+            <pre>
+1. Name: Wheat, Quantity: 100, Price: $20.5
+2. Name: Corn, Quantity: 150, Price: $10
+            </pre>
 
-// Structure to represent an operation for undo
-struct Operation {
-    string type;       // "ADD" or "DELETE"
-    Product product;   // Product involved in the operation
-};
+            <p><strong>Undo: Deleted product restored (Rice)</strong></p>
+            <p><strong>Marketplace Products:</strong></p>
+            <pre>
+1. Name: Wheat, Quantity: 100, Price: $20.5
+2. Name: Corn, Quantity: 150, Price: $10
+3. Name: Rice, Quantity: 200, Price: $15
+            </pre>
 
-// Farmer Marketplace Class
-class FarmerMarketplace {
-private:
-    Product products[MAX_PRODUCTS]; // Array to store products
-    int productCount;               // Current number of products
-
-    Operation operationStack[MAX_STACK]; // Stack for operation history
-    int top;                             // Top of the stack
-
-public:
-    // Constructor
-    FarmerMarketplace() : productCount(0), top(-1) {}
-
-    // Add a product to the marketplace
-    void addProduct(const string& name, int quantity, double price) {
-        if (productCount >= MAX_PRODUCTS) {
-            cout << "Error: Marketplace is full.\n";
-            return;
-        }
-
-        products[productCount++] = Product(name, quantity, price);
-        pushOperation("ADD", Product(name, quantity, price));
-        cout << "Product added successfully: " << name << "\n";
-    }
-
-    // Remove a product by name
-    void removeProduct(const string& name) {
-        int index = -1;
-        for (int i = 0; i < productCount; ++i) {
-            if (products[i].name == name) {
-                index = i;
-                break;
-            }
-        }
-
-        if (index == -1) {
-            cout << "Error: Product not found.\n";
-            return;
-        }
-
-        pushOperation("DELETE", products[index]);
-
-        // Shift products to remove the one at index
-        for (int i = index; i < productCount - 1; ++i) {
-            products[i] = products[i + 1];
-        }
-        productCount--;
-
-        cout << "Product removed successfully: " << name << "\n";
-    }
-
-    // Display all products
-    void displayProducts() {
-        if (productCount == 0) {
-            cout << "No products available.\n";
-            return;
-        }
-
-        cout << "Marketplace Products:\n";
-        for (int i = 0; i < productCount; ++i) {
-            cout << "  " << i + 1 << ". Name: " << products[i].name
-                 << ", Quantity: " << products[i].quantity
-                 << ", Price: $" << products[i].price << "\n";
-        }
-    }
-
-    // Undo the last operation
-    void undoLastOperation() {
-        if (top == -1) {
-            cout << "No operations to undo.\n";
-            return;
-        }
-
-        Operation lastOp = operationStack[top--];
-
-        if (lastOp.type == "ADD") {
-            // Undo ADD: Remove the last added product
-            for (int i = productCount - 1; i >= 0; --i) {
-                if (products[i].name == lastOp.product.name) {
-                    for (int j = i; j < productCount - 1; ++j) {
-                        products[j] = products[j + 1];
-                    }
-                    productCount--;
-                    break;
-                }
-            }
-            cout << "Undo: Added product removed (" << lastOp.product.name << ")\n";
-        } else if (lastOp.type == "DELETE") {
-            // Undo DELETE: Re-add the deleted product
-            if (productCount < MAX_PRODUCTS) {
-                products[productCount++] = lastOp.product;
-                cout << "Undo: Deleted product restored (" << lastOp.product.name << ")\n";
-            } else {
-                cout << "Error: Cannot undo delete, marketplace is full.\n";
-            }
-        }
-    }
-
-private:
-    // Push an operation onto the stack
-    void pushOperation(const string& type, const Product& product) {
-        if (top >= MAX_STACK - 1) {
-            cout << "Warning: Operation stack is full, cannot track further undo operations.\n";
-            return;
-        }
-        operationStack[++top] = {type, product};
-    }
-};
-
-// Main function
-int main() {
-    FarmerMarketplace marketplace;
-
-    // Adding products
-    marketplace.addProduct("Wheat", 100, 20.5);
-    marketplace.addProduct("Rice", 200, 15.0);
-    marketplace.addProduct("Corn", 150, 10.0);
-
-    // Display products
-    marketplace.displayProducts();
-
-    // Remove a product
-    marketplace.removeProduct("Rice");
-    marketplace.displayProducts();
-
-    // Undo last operation
-    marketplace.undoLastOperation();
-    marketplace.displayProducts();
-
-    // Undo another operation
-    marketplace.undoLastOperation();
-    marketplace.displayProducts();
-
-    return 0;
-}
-</p>
-<p>Product added successfully: Wheat
-Product added successfully: Rice
-Product added successfully: Corn
-Marketplace Products:
-  1. Name: Wheat, Quantity: 100, Price: $20.5
-  2. Name: Rice, Quantity: 200, Price: $15
-  3. Name: Corn, Quantity: 150, Price: $10
-
-Product removed successfully: Rice
-Marketplace Products:
-  1. Name: Wheat, Quantity: 100, Price: $20.5
-  2. Name: Corn, Quantity: 150, Price: $10
-
-Undo: Deleted product restored (Rice)
-Marketplace Products:
-  1. Name: Wheat, Quantity: 100, Price: $20.5
-  2. Name: Corn, Quantity: 150, Price: $10
-  3. Name: Rice, Quantity: 200, Price: $15
-
-Undo: Added product removed (Corn)
-Marketplace Products:
-  1. Name: Wheat, Quantity: 100, Price: $20.5
-  2. Name: Rice, Quantity: 200, Price: $15
-</p>
+            <p><strong>Undo: Added product removed (Corn)</strong></p>
+            <p><strong>Marketplace Products:</strong></p>
+            <pre>
+1. Name: Wheat, Quantity: 100, Price: $20.5
+2. Name: Rice, Quantity: 200, Price: $15
+            </pre>
         </section>
     </div>
-
 </body>
 </html>
