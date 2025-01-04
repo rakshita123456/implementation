@@ -1,146 +1,135 @@
+
 #include <iostream>
+#include <map>
 #include <string>
 using namespace std;
 
-// Structure to represent farm data
-struct Farm {
-    string farmName;
-    string soilQuality;
-    string cropType;
-    double yieldHistory;
-
-    Farm(string name = "", string soil = "", string crop = "", double yield = 0.0)
-        : farmName(name), soilQuality(soil), cropType(crop), yieldHistory(yield) {}
-};
-
-// HashTable Class
-class HashTable {
+class FarmDataManagement {
 private:
-    static const int TABLE_SIZE = 10; // Size of the hash table
-    Farm table[TABLE_SIZE];          // Array-based hash table
-    bool isOccupied[TABLE_SIZE];     // To track if a slot is occupied
+    struct Farm {
+        string name;
+        string soilQuality;
+        string cropType;
+        float yieldHistory;  // Yield in tons
+        string location;
+        float size;         // Size in hectares
+        string farmerName;
+    };
 
-    // Hash function to compute the index
-    int hashFunction(const string& key) {
-        int hash = 0;
-        for (char c : key) {
-            hash += c;
-        }
-        return hash % TABLE_SIZE;
-    }
+    map<int, Farm> farmTable;  // Store farms using unique farm ID
 
 public:
-    // Constructor to initialize the hash table
-    HashTable() {
-        for (int i = 0; i < TABLE_SIZE; ++i) {
-            isOccupied[i] = false;
+    void addFarm(int id, const string& name, const string& soilQuality, const string& cropType,
+                 float yieldHistory, const string& location, float size, const string& farmerName) {
+        Farm newFarm = {name, soilQuality, cropType, yieldHistory, location, size, farmerName};
+        farmTable[id] = newFarm;
+        cout << "Farm added successfully: " << name << endl;
+    }
+
+    void displayFarms() const {
+        if (farmTable.empty()) {
+            cout << "No farms available." << endl;
+            return;
+        }
+        for (map<int, Farm>::const_iterator it = farmTable.begin(); it != farmTable.end(); ++it) {
+            cout << "ID: " << it->first
+                 << "\nName: " << it->second.name
+                 << "\nSoil Quality: " << it->second.soilQuality
+                 << "\nCrop Type: " << it->second.cropType
+                 << "\nYield History: " << it->second.yieldHistory << " tons"
+                 << "\nLocation: " << it->second.location
+                 << "\nSize: " << it->second.size << " hectares"
+                 << "\nFarmer Name: " << it->second.farmerName << endl;
+            cout << "---------------------------------------" << endl;
         }
     }
 
-    // Insert farm data
-    void insertFarm(const string& name, const string& soil, const string& crop, double yield) {
-        int index = hashFunction(name);
-
-        // Linear probing to handle collisions
-        int originalIndex = index;
-        while (isOccupied[index]) {
-            if (table[index].farmName == name) {
-                cout << "Error: Farm with the name '" << name << "' already exists.\n";
-                return;
-            }
-            index = (index + 1) % TABLE_SIZE;
-            if (index == originalIndex) {
-                cout << "Error: Hash table is full.\n";
-                return;
-            }
+    void searchFarm(int id) const {
+        map<int, Farm>::const_iterator it = farmTable.find(id);
+        if (it != farmTable.end()) {
+            cout << "Farm Found: ID " << it->first
+                 << "\nName: " << it->second.name
+                 << "\nSoil Quality: " << it->second.soilQuality
+                 << "\nCrop Type: " << it->second.cropType
+                 << "\nYield History: " << it->second.yieldHistory << " tons"
+                 << "\nLocation: " << it->second.location
+                 << "\nSize: " << it->second.size << " hectares"
+                 << "\nFarmer Name: " << it->second.farmerName << endl;
+        } else {
+            cout << "Farm not found with ID: " << id << endl;
         }
-
-        table[index] = Farm(name, soil, crop, yield);
-        isOccupied[index] = true;
-        cout << "Farm added successfully: " << name << "\n";
     }
 
-    // Search for farm data by name
-    void searchFarm(const string& name) {
-        int index = hashFunction(name);
-        int originalIndex = index;
-
-        // Linear probing to find the farm
-        while (isOccupied[index]) {
-            if (table[index].farmName == name) {
-                cout << "Farm Found:\n";
-                cout << "  Name: " << table[index].farmName
-                     << ", Soil Quality: " << table[index].soilQuality
-                     << ", Crop Type: " << table[index].cropType
-                     << ", Yield History: " << table[index].yieldHistory << " tons\n";
-                return;
-            }
-            index = (index + 1) % TABLE_SIZE;
-            if (index == originalIndex) break;
-        }
-
-        cout << "Error: Farm with the name '" << name << "' not found.\n";
-    }
-
-    // Delete farm data by name
-    void deleteFarm(const string& name) {
-        int index = hashFunction(name);
-        int originalIndex = index;
-
-        // Linear probing to find the farm
-        while (isOccupied[index]) {
-            if (table[index].farmName == name) {
-                isOccupied[index] = false;
-                cout << "Farm deleted successfully: " << name << "\n";
-                return;
-            }
-            index = (index + 1) % TABLE_SIZE;
-            if (index == originalIndex) break;
-        }
-
-        cout << "Error: Farm with the name '" << name << "' not found.\n";
-    }
-
-    // Display all farms in the hash table
-    void displayFarms() {
-        cout << "Farm Data:\n";
-        for (int i = 0; i < TABLE_SIZE; ++i) {
-            if (isOccupied[i]) {
-                cout << "  Slot " << i << ": "
-                     << "Name: " << table[i].farmName
-                     << ", Soil Quality: " << table[i].soilQuality
-                     << ", Crop Type: " << table[i].cropType
-                     << ", Yield History: " << table[i].yieldHistory << " tons\n";
-            } else {
-                cout << "  Slot " << i << ": Empty\n";
-            }
+    void deleteFarm(int id) {
+        map<int, Farm>::iterator it = farmTable.find(id);
+        if (it != farmTable.end()) {
+            cout << "Farm deleted successfully: " << it->second.name << endl;
+            farmTable.erase(it);
+        } else {
+            cout << "Farm not found with ID: " << id << endl;
         }
     }
 };
 
-// Main Function
 int main() {
-    HashTable farmData;
+    FarmDataManagement manager;
+    int choice, id;
+    string name, soilQuality, cropType, location, farmerName;
+    float yieldHistory, size;
 
-    // Adding farms
-    farmData.insertFarm("Farm1", "Loamy", "Wheat", 30.5);
-    farmData.insertFarm("Farm2", "Clay", "Rice", 45.2);
-    farmData.insertFarm("Farm3", "Sandy", "Corn", 25.8);
+    do {
+        cout << "\nFarm Data Management Menu:\n";
+        cout << "1. Add Farm\n";
+        cout << "2. Display Farms\n";
+        cout << "3. Search Farm by ID\n";
+        cout << "4. Delete Farm by ID\n";
+        cout << "5. Exit\n";
+        cout << "Enter your choice: ";
+        cin >> choice;
 
-    // Display farms
-    farmData.displayFarms();
-
-    // Search for a specific farm
-    cout << "\nSearching for 'Farm2':\n";
-    farmData.searchFarm("Farm2");
-
-    // Delete a farm
-    cout << "\nDeleting 'Farm1':\n";
-    farmData.deleteFarm("Farm1");
-
-    // Display farms after deletion
-    cout << "\nFarms after deletion:\n";
-    farmData.displayFarms();
+        switch (choice) {
+            case 1:
+                cout << "Enter Farm ID: ";
+                cin >> id;
+                cin.ignore();  // To ignore the newline character left by `cin`
+                cout << "Enter Farm Name: ";
+                getline(cin, name);
+                cout << "Enter Soil Quality: ";
+                getline(cin, soilQuality);
+                cout << "Enter Crop Type: ";
+                getline(cin, cropType);
+                cout << "Enter Yield History (in tons): ";
+                cin >> yieldHistory;
+                cin.ignore();
+                cout << "Enter Location: ";
+                getline(cin, location);
+                cout << "Enter Farm Size (in hectares): ";
+                cin >> size;
+                cin.ignore();
+                cout << "Enter Farmer's Name: ";
+                getline(cin, farmerName);
+                manager.addFarm(id, name, soilQuality, cropType, yieldHistory, location, size, farmerName);
+                break;
+            case 2:
+                manager.displayFarms();
+                break;
+            case 3:
+                cout << "Enter Farm ID to search: ";
+                cin >> id;
+                manager.searchFarm(id);
+                break;
+            case 4:
+                cout << "Enter Farm ID to delete: ";
+                cin >> id;
+                manager.deleteFarm(id);
+                break;
+            case 5:
+                cout << "Exiting program..." << endl;
+                break;
+            default:
+                cout << "Invalid choice. Please try again.\n";
+        }
+    } while (choice != 5);
 
     return 0;
 }
