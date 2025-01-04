@@ -1,160 +1,138 @@
+
 #include <iostream>
 #include <string>
+#include <stack>
 using namespace std;
 
-// Constants
-const int MAX_PRODUCTS = 100; // Maximum number of products
-const int MAX_STACK = 50;     // Maximum stack size for operation history
-
-// Structure to represent a Product
-struct Product {
-    string name;
-    int quantity;
-    double price;
-
-    // Constructor for easy initialization
-    Product(string n = "", int q = 0, double p = 0.0)
-        : name(n), quantity(q), price(p) {}
-};
-
-// Structure to represent an operation for undo
-struct Operation {
-    string type;       // "ADD" or "DELETE"
-    Product product;   // Product involved in the operation
-};
-
-// Farmer Marketplace Class
 class FarmerMarketplace {
 private:
-    Product products[MAX_PRODUCTS]; // Array to store products
-    int productCount;               // Current number of products
+    struct Product {
+        string name;
+        int quantity;
+        float price;
+    };
 
-    Operation operationStack[MAX_STACK]; // Stack for operation history
-    int top;                             // Top of the stack
+    // Arrays to hold products
+    Product products[100];
+    int productCount;  // To keep track of the number of products added
+
+    // Stack to handle undo (added and removed products)
+    stack<Product> undoStack;
 
 public:
-    // Constructor
-    FarmerMarketplace() : productCount(0), top(-1) {}
+    FarmerMarketplace() : productCount(0) {}
 
-    // Add a product to the marketplace
-    void addProduct(const string& name, int quantity, double price) {
-        if (productCount >= MAX_PRODUCTS) {
-            cout << "Error: Marketplace is full.\n";
+    // Add a new product to the store
+    void addProduct(const string& name, int quantity, float price) {
+        if (productCount >= 100) {
+            cout << "Store is full. Cannot add more products.\n";
             return;
         }
-
-        products[productCount++] = Product(name, quantity, price);
-        pushOperation("ADD", Product(name, quantity, price));
-        cout << "Product added successfully: " << name << "\n";
+        products[productCount] = {name, quantity, price};
+        productCount++;
+        cout << "Product added successfully: " << name << endl;
     }
 
-    // Remove a product by name
+    // Remove a product from the store
     void removeProduct(const string& name) {
-        int index = -1;
-        for (int i = 0; i < productCount; ++i) {
+        bool found = false;
+        for (int i = 0; i < productCount; i++) {
             if (products[i].name == name) {
-                index = i;
+                // Push the product onto the undo stack before removing
+                undoStack.push(products[i]);
+
+                // Shift remaining products to remove the selected product
+                for (int j = i; j < productCount - 1; j++) {
+                    products[j] = products[j + 1];
+                }
+                productCount--;
+                found = true;
+                cout << "Product removed successfully: " << name << endl;
                 break;
             }
         }
+        if (!found) {
+            cout << "Product not found.\n";
+        }
+    }
 
-        if (index == -1) {
-            cout << "Error: Product not found.\n";
+    // Undo the last action (either add or remove a product)
+    void undoLastAction() {
+        if (undoStack.empty()) {
+            cout << "Nothing to undo.\n";
             return;
         }
 
-        pushOperation("DELETE", products[index]);
-
-        // Shift products to remove the one at index
-        for (int i = index; i < productCount - 1; ++i) {
-            products[i] = products[i + 1];
-        }
-        productCount--;
-
-        cout << "Product removed successfully: " << name << "\n";
+        Product lastActionProduct = undoStack.top();
+        undoStack.pop();
+        // Push the product back if it was removed
+        addProduct(lastActionProduct.name, lastActionProduct.quantity, lastActionProduct.price);
+        cout << "Undo successful: " << lastActionProduct.name << " has been restored.\n";
     }
 
-    // Display all products
-    void displayProducts() {
+    // Display all products in the store
+    void displayProducts() const {
         if (productCount == 0) {
-            cout << "No products available.\n";
+            cout << "No products available in the store.\n";
             return;
         }
-
-        cout << "Marketplace Products:\n";
-        for (int i = 0; i < productCount; ++i) {
-            cout << "  " << i + 1 << ". Name: " << products[i].name
-                 << ", Quantity: " << products[i].quantity
-                 << ", Price: $" << products[i].price << "\n";
+        cout << "Product List: \n";
+        for (int i = 0; i < productCount; i++) {
+            cout << "Product Name: " << products[i].name
+                 << "\nQuantity: " << products[i].quantity
+                 << "\nPrice: " << products[i].price
+                 << "\n----------------------------" << endl;
         }
-    }
-
-    // Undo the last operation
-    void undoLastOperation() {
-        if (top == -1) {
-            cout << "No operations to undo.\n";
-            return;
-        }
-
-        Operation lastOp = operationStack[top--];
-
-        if (lastOp.type == "ADD") {
-            // Undo ADD: Remove the last added product
-            for (int i = productCount - 1; i >= 0; --i) {
-                if (products[i].name == lastOp.product.name) {
-                    for (int j = i; j < productCount - 1; ++j) {
-                        products[j] = products[j + 1];
-                    }
-                    productCount--;
-                    break;
-                }
-            }
-            cout << "Undo: Added product removed (" << lastOp.product.name << ")\n";
-        } else if (lastOp.type == "DELETE") {
-            // Undo DELETE: Re-add the deleted product
-            if (productCount < MAX_PRODUCTS) {
-                products[productCount++] = lastOp.product;
-                cout << "Undo: Deleted product restored (" << lastOp.product.name << ")\n";
-            } else {
-                cout << "Error: Cannot undo delete, marketplace is full.\n";
-            }
-        }
-    }
-
-private:
-    // Push an operation onto the stack
-    void pushOperation(const string& type, const Product& product) {
-        if (top >= MAX_STACK - 1) {
-            cout << "Warning: Operation stack is full, cannot track further undo operations.\n";
-            return;
-        }
-        operationStack[++top] = {type, product};
     }
 };
 
-// Main function
 int main() {
     FarmerMarketplace marketplace;
+    int choice;
+    string name;
+    int quantity;
+    float price;
 
-    // Adding products
-    marketplace.addProduct("Wheat", 100, 20.5);
-    marketplace.addProduct("Rice", 200, 15.0);
-    marketplace.addProduct("Corn", 150, 10.0);
+    do {
+        cout << "\nFarmer Marketplace Menu:\n";
+        cout << "1. Add Product\n";
+        cout << "2. Remove Product\n";
+        cout << "3. Display Products\n";
+        cout << "4. Undo Last Action\n";
+        cout << "5. Exit\n";
+        cout << "Enter your choice: ";
+        cin >> choice;
 
-    // Display products
-    marketplace.displayProducts();
-
-    // Remove a product
-    marketplace.removeProduct("Rice");
-    marketplace.displayProducts();
-
-    // Undo last operation
-    marketplace.undoLastOperation();
-    marketplace.displayProducts();
-
-    // Undo another operation
-    marketplace.undoLastOperation();
-    marketplace.displayProducts();
+        switch (choice) {
+            case 1:
+                cout << "Enter Product Name: ";
+                cin.ignore();  // to ignore the leftover newline character from previous input
+                getline(cin, name);
+                cout << "Enter Quantity: ";
+                cin >> quantity;
+                cout << "Enter Price: ";
+                cin >> price;
+                marketplace.addProduct(name, quantity, price);
+                break;
+            case 2:
+                cout << "Enter Product Name to Remove: ";
+                cin.ignore();
+                getline(cin, name);
+                marketplace.removeProduct(name);
+                break;
+            case 3:
+                marketplace.displayProducts();
+                break;
+            case 4:
+                marketplace.undoLastAction();
+                break;
+            case 5:
+                cout << "Exiting program...\n";
+                break;
+            default:
+                cout << "Invalid choice. Please try again.\n";
+        }
+    } while (choice != 5);
 
     return 0;
 }
